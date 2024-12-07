@@ -17,12 +17,12 @@ const dragInstance = new Draggable(draggableEl, {
 	},
 });
 
-xSlider.addEventListener('input', (e: Event) => {
-	position.x = +e.target.value;
-	dragInstance.updateOptions({ position });
+xSlider.addEventListener('input', (e) => {
+	position.x = +e.target!.value;
+	dragInstance.options.position = position;
 });
 
 ySlider.addEventListener('input', (e: Event) => {
-	position.y = +e.target.value;
-	dragInstance.updateOptions({ position });
+	position.y = +e.target!.value;
+	dragInstance.options.position = position;
 });

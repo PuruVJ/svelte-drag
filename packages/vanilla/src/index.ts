@@ -1,30 +1,45 @@
 import { draggable, type DragOptions } from '@neodrag/core';
 
 export class Draggable {
-	private _drag_instance: ReturnType<typeof draggable>;
-	private _options: DragOptions = {};
+	#instance: ReturnType<typeof draggable>;
+	#raw_options: DragOptions = {};
 
-	constructor(
-		public node: HTMLElement,
-		options: DragOptions = {},
-	) {
-		this._drag_instance = draggable(node, (this._options = options));
+	constructor(node: HTMLElement, options: DragOptions = {}) {
+		this.#instance = draggable(node, (this.#raw_options = options));
 	}
 
-	public updateOptions(options: DragOptions) {
-		this._drag_instance.update(Object.assign(this._options, options));
-	}
+	/**
+	 * Options Proxy Creator
+	 */
+	#create_proxy = (options: DragOptions) => {
+		return new Proxy(options, {
+			set: (target, property, value) => {
+				Reflect.set(target, property, value);
+				this.#instance?.update(this.#raw_options); // Update confetti instance when options change
+				return true;
+			},
+		});
+	};
 
-	set options(options: DragOptions) {
-		this._drag_instance.update((this._options = options));
+	/** @deprecated Directly set individual options via `dragInstance.options.grid = [1, 3]`. Will be removed in v3 */
+	updateOptions(options: DragOptions) {
+		this.#instance.update(Object.assign(this.#raw_options, options));
 	}
 
 	get options() {
-		return this._options;
+		return this.#create_proxy(this.#raw_options); // Initialize options with a proxy
 	}
 
-	public destroy() {
-		this._drag_instance.destroy();
+	get optionsJSON() {
+		return JSON.parse(JSON.stringify(this.#raw_options));
+	}
+
+	set options(value: DragOptions) {
+		this.#instance?.update((this.#raw_options = value)); // Update confetti instance on setting new options
+	}
+
+	destroy() {
+		this.#instance.destroy();
 	}
 }
 

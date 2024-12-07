@@ -65,15 +65,15 @@ const dragInstance = new Draggable(document.querySelector('#drag'), {
 });
 
 // Update the specific options. Will be merged with the existing options.
-dragInstance.updateOptions({
-  axis: 'y',
-});
+dragInstance.options.axis = 'y';
 
 // Completely overrides existing options, in this case, the `grid` property is removed
 dragInstance.options = {
   axis: 'y',
 };
 ```
+
+> NOTE: dragInstance.options is internally a Proxy, allowing the nice `.options[PROPERTY] = VALUE` syntax. If you wish to read the raw value, use `dragInstance.optionsJSON`.
 
 Using via CDN
 
