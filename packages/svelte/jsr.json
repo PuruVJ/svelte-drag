@@ -1,0 +1,8 @@
+{
+	"name": "@neodrag/svelte",
+	"version": "2.0.3",
+	"exports": {
+		".": "./dist/index.js"
+	},
+	"files": ["dist/*"]
+}
