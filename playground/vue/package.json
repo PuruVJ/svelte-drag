@@ -1,0 +1,20 @@
+{
+	"name": "vue-demo",
+	"private": true,
+	"version": "0.0.9",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@neodrag/vue": "workspace:*",
+		"vue": "^3.3.12"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "^4.5.2",
+		"typescript": "^5.3.3",
+		"vite": "^5.0.10",
+		"vue-tsc": "^1.8.25"
+	}
+}

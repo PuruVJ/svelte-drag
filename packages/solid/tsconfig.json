@@ -1,21 +1,7 @@
 {
 	"compilerOptions": {
-		"target": "ESNext",
-		"useDefineForClassFields": true,
-		"declarationDir": "./dist",
-		"declaration": true,
-		"emitDeclarationOnly": true,
-		"lib": ["DOM", "ESNext"],
-		"allowJs": false,
-		"skipLibCheck": false,
-		"esModuleInterop": false,
-		"allowSyntheticDefaultImports": true,
-		"strict": true,
-		"forceConsistentCasingInFileNames": true,
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"resolveJsonModule": true,
-		"preserveSymlinks": false
+		"moduleResolution": "bundler",
+		"module": "ESNext"
 	},
 	"include": ["./src"]
 }

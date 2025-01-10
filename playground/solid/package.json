@@ -1,0 +1,21 @@
+{
+	"name": "solid-demo",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"start": "vite",
+		"dev": "vite",
+		"build": "vite build",
+		"serve": "vite preview"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "^5.3.3",
+		"vite": "^5.0.10",
+		"vite-plugin-solid": "^2.8.0"
+	},
+	"dependencies": {
+		"@neodrag/solid": "workspace:*",
+		"solid-js": "^1.8.7"
+	}
+}

@@ -13,11 +13,8 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": {
-				"production": "./dist/min/index.js",
-				"development": "./dist/index.js"
-			},
-			"default": "./dist/min/index.js"
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
 		},
 		"./package.json": "./package.json"
 	},
@@ -48,7 +45,7 @@
 		"pub": "pnpm compile && pnpm publish --no-git-checks --access public",
 		"pub:dry": "pnpm compile && pnpm publish --dry-run --no-git-checks --access public"
 	},
-	"devDependencies": {
+	"dependencies": {
 		"@neodrag/core": "workspace:*"
 	},
 	"peerDependencies": {

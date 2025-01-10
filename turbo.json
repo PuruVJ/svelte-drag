@@ -1,0 +1,26 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"tasks": {
+		"compile": {
+			"outputs": ["dist"],
+			"inputs": ["./src/**/*.ts", "tsup.config.ts"],
+			"dependsOn": ["^compile"]
+		},
+		"docs#build": {
+			"outputs": ["dist"],
+			"dependsOn": ["^compile", "sizes"]
+		},
+		"sizes": {
+			"outputs": ["dist"],
+			"dependsOn": ["^compile", "^sizes"]
+		},
+		"dev": {
+			"outputs": ["dist"],
+			"dependsOn": ["^compile"],
+			"inputs": ["./src/**/*.ts", "tsup.config.ts"],
+			"cache": false,
+			"persistent": true
+		}
+	},
+	"ui": "tui"
+}

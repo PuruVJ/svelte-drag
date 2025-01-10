@@ -20,3 +20,8 @@ export function elements_overlap(el1: HTMLElement, el2: HTMLElement) {
 export function wait_for(ms: number) {
 	return new Promise((r) => setTimeout(r, ms));
 }
+
+// Add scroll helpers
+export function isWindow(container: HTMLElement | Window): container is Window {
+	return container === window;
+}

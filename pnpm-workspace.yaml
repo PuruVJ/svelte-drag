@@ -1,5 +1,7 @@
 packages:
-  - packages/**
+  - packages/*
+  - packages/core/test-app
+  - playground/*
   - '!**/test/**'
   - docs
   - config

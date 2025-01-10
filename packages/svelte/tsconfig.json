@@ -4,7 +4,7 @@
 		"target": "ESNext",
 		"declaration": true,
 		"emitDeclarationOnly": true,
-		"declarationDir": "dist/",
+		"declarationDir": "dist",
 		"strict": true,
 		"esModuleInterop": true,
 		"moduleResolution": "Bundler",

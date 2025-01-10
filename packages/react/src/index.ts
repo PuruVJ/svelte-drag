@@ -1,100 +1,99 @@
-import { DragEventData, draggable, DragOptions } from '@neodrag/core';
-import React, { useEffect, useRef, useState } from 'react';
+import { createDraggable } from '@neodrag/core';
+import { DragEventData, unstable_definePlugin, type Plugin } from '@neodrag/core/plugins';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-type DragState = DragEventData;
+const draggable_factory = createDraggable();
 
-type HandleCancelType =
-	| string
-	| HTMLElement
-	| React.RefObject<HTMLElement>
-	| (React.RefObject<HTMLElement> | HTMLElement)[]
-	| undefined;
-
-function unwrap_handle_cancel(
-	val: HandleCancelType,
-): string | HTMLElement | HTMLElement[] | undefined {
-	if (val == undefined || typeof val === 'string' || val instanceof HTMLElement) return val;
-	if ('current' in val) return val.current!;
-
-	if (Array.isArray(val)) {
-		// It can only be an array now
-		return val.map((v) => (v instanceof HTMLElement ? v : v.current!));
-	}
+interface DragState extends DragEventData {
+	isDragging: boolean;
 }
 
-type ReactDragOptions = Omit<DragOptions, 'handle' | 'cancel'> & {
-	handle?: HandleCancelType;
-	cancel?: HandleCancelType;
+const default_drag_state: DragState = {
+	offset: { x: 0, y: 0 },
+	rootNode: null as unknown as HTMLElement,
+	currentNode: null as unknown as HTMLElement,
+	isDragging: false,
 };
 
-export function useDraggable<RefType extends HTMLElement = HTMLDivElement>(
-	nodeRef: React.RefObject<RefType>,
-	options: ReactDragOptions = {},
-) {
-	const update_ref = useRef<(options: DragOptions) => void>();
+// Create the state sync plugin with the provided setState function
+const state_sync = unstable_definePlugin<
+	[setDragState: React.Dispatch<React.SetStateAction<DragState>>]
+>({
+	name: 'react-state-sync',
+	priority: -1000, // Run last to ensure we get final values
+	cancelable: false,
 
-	const [isDragging, set_is_dragging] = useState(false);
-	const [dragState, set_drag_state] = useState<DragState>();
-
-	let { onDragStart, onDrag, onDragEnd, handle, cancel } = options;
-
-	let new_handle = unwrap_handle_cancel(handle);
-	let new_cancel = unwrap_handle_cancel(cancel);
-
-	function call_event(arg: DragState, cb: DragOptions['onDrag']) {
-		set_drag_state(arg);
-		cb?.(arg);
-	}
-
-	function custom_on_drag_start(arg: DragState) {
-		set_is_dragging(true);
-		call_event(arg, onDragStart);
-	}
-
-	function custom_on_drag(arg: DragState) {
-		call_event(arg, onDrag);
-	}
-
-	function custom_on_drag_end(arg: DragState) {
-		set_is_dragging(false);
-		call_event(arg, onDragEnd);
-	}
-
-	useEffect(() => {
-		if (typeof window === 'undefined') return;
-		const node = nodeRef.current;
-		if (!node) return;
-
-		// Update callbacks
-		({ onDragStart, onDrag, onDragEnd } = options);
-
-		const { update, destroy } = draggable(node, {
-			...options,
-			handle: new_handle,
-			cancel: new_cancel,
-			onDragStart: custom_on_drag_start,
-			onDrag: custom_on_drag,
-			onDragEnd: custom_on_drag_end,
+	start: ([setDragState], ctx) => {
+		ctx.effect.immediate(() => {
+			setDragState((prev) => ({
+				...prev,
+				isDragging: true,
+				offset: { ...ctx.offset },
+				rootNode: ctx.rootNode,
+				currentNode: ctx.currentlyDraggedNode,
+			}));
 		});
+	},
 
-		update_ref.current = update;
-
-		return destroy;
-	}, []);
-
-	useEffect(() => {
-		update_ref.current?.({
-			...options,
-			handle: unwrap_handle_cancel(handle),
-			cancel: unwrap_handle_cancel(cancel),
-			onDragStart: custom_on_drag_start,
-			onDrag: custom_on_drag,
-			onDragEnd: custom_on_drag_end,
+	drag: ([setDragState], ctx) => {
+		ctx.effect.immediate(() => {
+			setDragState((prev) => ({
+				...prev,
+				offset: { ...ctx.offset },
+				rootNode: ctx.rootNode,
+				currentNode: ctx.currentlyDraggedNode,
+			}));
 		});
-	}, [options]);
+	},
 
-	return { isDragging, dragState };
+	end: ([setDragState], ctx) => {
+		ctx.effect.immediate(() => {
+			setDragState((prev) => ({
+				...prev,
+				isDragging: false,
+				offset: { ...ctx.offset },
+				rootNode: ctx.rootNode,
+				currentNode: ctx.currentlyDraggedNode,
+			}));
+		});
+	},
+});
+
+export function wrapper(draggableFactory: ReturnType<typeof createDraggable>) {
+	return (ref: React.RefObject<HTMLElement | SVGElement | null>, plugins: Plugin[] = []) => {
+		const [drag_state, set_drag_state] = useState<DragState>(default_drag_state);
+		const instance = useRef<ReturnType<typeof draggableFactory.draggable>>();
+		const state_sync_ref = useRef(state_sync(set_drag_state));
+		const pluginsRef = useRef(plugins.concat(state_sync_ref.current));
+		const is_first_run = useRef(true);
+
+		// Initialize draggable instance
+		useEffect(() => {
+			const node = ref.current;
+			if (!node) return;
+
+			instance.current = draggableFactory.draggable(node, pluginsRef.current);
+
+			return () => instance.current?.destroy();
+		}, []); // Changed dependency
+
+		// Handle plugin updates
+		useEffect(() => {
+			if (is_first_run.current) {
+				is_first_run.current = false;
+				return;
+			}
+
+			if (!instance.current) return;
+
+			pluginsRef.current = plugins.concat(state_sync_ref.current);
+			instance.current.update(pluginsRef.current);
+		}, [plugins]); // Changed dependency
+
+		return drag_state;
+	};
 }
 
-export type { DragAxis, DragBounds, DragBoundsCoords, DragEventData } from '@neodrag/core';
-export type { ReactDragOptions as DragOptions };
+export const useDraggable = wrapper(draggable_factory);
+export * from '@neodrag/core/plugins';
+export const instances = draggable_factory.instances;

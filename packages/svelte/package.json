@@ -13,11 +13,8 @@
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": {
-				"production": "./dist/min/index.js",
-				"development": "./dist/index.js"
-			},
-			"default": "./dist/min/index.js"
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
 		},
 		"./package.json": "./package.json"
 	},
@@ -49,7 +46,7 @@
 	"bugs": {
 		"url": "https://github.com/PuruVJ/neodrag/issues"
 	},
-	"devDependencies": {
+	"dependencies": {
 		"@neodrag/core": "workspace:*"
 	},
 	"homepage": "https://neodrag.dev/docs/svelte"

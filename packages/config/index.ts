@@ -1,10 +1,17 @@
 import { Format } from 'tsup';
 import { defineConfig } from 'tsup';
 
-export const core_config = ({ dtsBanner = '', includeUMD = false, globalName = 'neodrag' } = {}) =>
+export const core_config = ({
+	modularAsIndex = false,
+	dtsBanner = '',
+	includeUMD = false,
+	globalName = 'neodrag',
+} = {}) =>
 	defineConfig([
 		{
-			entry: ['./src/index.ts'],
+			entry: {
+				index: `./src/${modularAsIndex ? 'modular' : 'index'}.ts`,
+			},
 			format: 'esm',
 			external: ['vue', 'react', 'solid-js', 'svelte'],
 			dts: { resolve: true, banner: dtsBanner },
@@ -12,7 +19,9 @@ export const core_config = ({ dtsBanner = '', includeUMD = false, globalName = '
 			treeshake: 'smallest',
 		},
 		{
-			entry: ['./src/index.ts'],
+			entry: {
+				index: `./src/${modularAsIndex ? 'modular' : 'index'}.ts`,
+			},
 			minify: 'terser',
 			external: ['vue', 'react', 'solid-js', 'svelte'],
 			format: 'esm',
